@@ -1,178 +1,136 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Trợ lý học tập — Chatbox (Landbot embed)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chatbot Học Tập Cute</title>
   <style>
-    :root{--bg:#eaf4ff;--card:#ffffff;--accent:#1e88e5;--muted:#6b7280}
-    body{margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system,"Helvetica Neue",Arial;background:var(--bg);color:#0f172a}
-    .topbar{display:flex;align-items:center;gap:12px;padding:18px 22px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,#cfeeff,#a6ddff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#083c63}
-    .container{max-width:980px;margin:22px auto;padding:22px}
-    .card{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(12,38,63,0.06)}
-
-    /* Chat widget bubble */
-    .chat-bubble{position:fixed;right:22px;bottom:22px;width:74px;height:74px;border-radius:999px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;box-shadow:0 8px 24px rgba(30,136,229,0.24);cursor:pointer}
-    .chat-bubble small{display:block;font-size:11px}
-
-    /* Overlay with iframe */
-    .overlay{position:fixed;right:22px;bottom:110px;width:380px;height:640px;border-radius:14px;overflow:hidden;background:transparent;box-shadow:0 18px 60px rgba(2,6,23,0.28);display:none;z-index:9999}
-    .overlay .header{height:62px;background:linear-gradient(90deg,var(--accent),#64b5f6);display:flex;align-items:center;padding:10px 12px;color:white}
-    .overlay .header .title{font-weight:700;margin-left:10px}
-    .overlay iframe{width:100%;height:calc(100% - 62px);border:0}
-
-    /* Controls inside page */
-    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    .btn{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
-    .btn.secondary{background:#f3f6fb;color:var(--accent);border:1px solid #dbeefd}
-
-    .section{margin-top:16px}
-    .hint{font-size:14px;color:var(--muted)}
-
-    /* Small helper */
-    .copy-hint{background:#eef7ff;padding:10px;border-radius:10px;margin-top:12px;color:#083c63}
-
-    footer{max-width:980px;margin:22px auto;color:var(--muted);font-size:13px}
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffe6f2, #e6f7ff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      height: 100vh;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      margin-top: 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      background: #ff9ac2;
+      padding: 15px;
+      border-radius: 20px 20px 0 0;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    .msg {
+      margin: 10px 0;
+      padding: 10px 14px;
+      border-radius: 15px;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+    .user {
+      background: #cce6ff;
+      align-self: flex-end;
+    }
+    .bot {
+      background: #ffd6e7;
+      align-self: flex-start;
+    }
+    .input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ddd;
+    }
+    input {
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      margin-left: 10px;
+      border: none;
+      background: #ff9ac2;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .mic {
+      background: #6ac9ff;
+    }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">AI</div>
-      <div>
-        <div style="font-weight:700">Trợ lý học tập AI</div>
-        <div style="font-size:13px;color:var(--muted)">Giao diện demo + chỗ nhúng Landbot</div>
-      </div>
+  <div class="chat-container">
+    <div class="header">🤖 B - Chatbot Học Tập Cute</div>
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+      <input id="textInput" placeholder="Nhập tin nhắn..." />
+      <button onclick="sendMessage()">➤</button>
+      <button class="mic" onclick="startListening()">🎙</button>
     </div>
   </div>
-
-  <div class="container">
-    <div class="card">
-      <h2>Hướng dẫn nhanh</h2>
-      <p class="hint">Trang này là **một trang web mẫu** (HTML/CSS/JS) để nhúng chatbox Landbot. Bạn có thể dùng đoạn mã trang này, thay <code>YOUR_LANDBOT_URL</code> bằng link bot của bạn, rồi tải lên GitHub Pages hoặc Netlify để có link truy cập.</p>
-
-      <div class="section">
-        <h3>1) Giao diện chat (bot hiện ở góc phải)</h3>
-        <p class="hint">Nhấn nút chat dưới góc phải để mở cửa sổ chat (iframe chứa Landbot). Microphone sẽ chuyển giọng nói sang văn bản và sao chép vào clipboard. Sau đó dán vào ô nhập trong chat Landbot (Ctrl+V / Dán).</p>
-        <div class="controls">
-          <button id="openChat" class="btn">Mở Chat</button>
-          <button id="closeChat" class="btn secondary">Đóng Chat</button>
-          <button id="startRec" class="btn">🎙️ Ghi âm</button>
-        </div>
-        <div class="copy-hint" id="copyHint" style="display:none">Văn bản đã được sao chép vào clipboard. Vui lòng chuyển vào khung chat và dán (Ctrl+V).</div>
-      </div>
-
-      <div class="section">
-        <h3>2) Cách nhúng Landbot</h3>
-        <p class="hint">Trong file này, tìm biến <code>LAND_BOT_URL</code> ở phần <code>&lt;script&gt;</code> bên dưới và thay bằng link bot của bạn (ví dụ: <code>https://yourbot.landbot.io/v3/...</code>)</p>
-      </div>
-
-      <div class="section">
-        <h3>3) Gợi ý hosting</h3>
-        <ul class="hint">
-          <li>GitHub Pages: Tạo repo, đẩy file index.html, bật Pages trên nhánh main — website có dạng <code>https://username.github.io/repo/</code>.</li>
-          <li>Netlify: Kéo thả file lên Netlify Drop hoặc deploy từ GitHub — nhận link ngay.</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="chat-bubble" id="chatBubble" title="Mở trợ lý học tập">
-    💬
-  </div>
-
-  <div class="overlay" id="overlay">
-    <div class="header">
-      <div style="width:44px;height:44px;border-radius:10px;background:#fff8;display:flex;align-items:center;justify-content:center">🤖</div>
-      <div style="margin-left:10px">
-        <div class="title">Trợ lý học tập AI</div>
-        <div style="font-size:12px;opacity:0.9">Nói hoặc gõ để bắt đầu</div>
-      </div>
-    </div>
-    <!-- Replace the iframe src with your Landbot webchat URL. -->
-    <iframe id="botFrame" src="about:blank" title="Landbot chat iframe"></iframe>
-  </div>
-
-  <footer>Phiên bản mẫu • Thay <code>LAND_BOT_URL</code> trong mã bằng URL của bot Landbot của bạn<br>Không lưu trữ nội dung AI — chỉ demo giao diện.</footer>
 
   <script>
-    // ----- CONFIG -----
-    // Thay giá trị này bằng link bot Landbot của bạn (Web chat URL hoặc page URL).
-    const LAND_BOT_URL = 'https://hongcuc86.github.io/ChatAI-Tinhoc/'; // <-- <<--- THAY CHỖ NÀY
-
-    // UI elements
-    const chatBubble = document.getElementById('chatBubble');
-    const overlay = document.getElementById('overlay');
-    const botFrame = document.getElementById('botFrame');
-    const openBtn = document.getElementById('openChat');
-    const closeBtn = document.getElementById('closeChat');
-    const startRec = document.getElementById('startRec');
-    const copyHint = document.getElementById('copyHint');
-
-    function openOverlay(){
-      if (LAND_BOT_URL === 'YOUR_LANDBOT_URL'){
-        alert('Vui lòng chỉnh sửa file: thay YOUR_LANDBOT_URL bằng link Landbot của bạn.');
-        return;
-      }
-      botFrame.src = LAND_BOT_URL;
-      overlay.style.display = 'block';
-    }
-    function closeOverlay(){ overlay.style.display = 'none'; }
-
-    chatBubble.addEventListener('click', openOverlay);
-    openBtn.addEventListener('click', openOverlay);
-    closeBtn.addEventListener('click', closeOverlay);
-
-    // ----- Speech to Text (Web Speech API) -----
-    // Lưu ý: chỉ hoạt động trên https hoặc localhost và trình duyệt hỗ trợ (Chrome, Edge).
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition){
-      startRec.disabled = true;
-      startRec.textContent = '🎙️ Trình duyệt không hỗ trợ ghi âm';
-    } else {
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'vi-VN';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      startRec.addEventListener('click', ()=>{
-        recognition.start();
-        startRec.textContent = '🎙️ Đang nghe...';
-      });
-
-      recognition.addEventListener('result', (e)=>{
-        const text = e.results[0][0].transcript.trim();
-        // Sao chép vào clipboard và hiển thị gợi ý để dán vào chat bot
-        navigator.clipboard.writeText(text).then(()=>{
-          copyHint.style.display = 'block';
-          copyHint.textContent = 'Đã sao chép: "' + text + '" — Hãy dán (Ctrl+V) vào ô nhập của chat bot để gửi.';
-          setTimeout(()=>copyHint.style.display = 'none', 8000);
-        }).catch(()=>{
-          copyHint.style.display = 'block';
-          copyHint.textContent = 'Không thể sao chép tự động. Văn bản: "'+text+'"';
-        });
-
-        startRec.textContent = '🎙️ Ghi âm';
-      });
-
-      recognition.addEventListener('end', ()=>{ startRec.textContent = '🎙️ Ghi âm'; });
-      recognition.addEventListener('error', (err)=>{ startRec.textContent = '🎙️ Ghi âm'; alert('Lỗi ghi âm: '+err.message); });
+    function addMessage(text, sender) {
+      const box = document.createElement('div');
+      box.className = 'msg ' + sender;
+      box.innerText = text;
+      document.getElementById('messages').appendChild(box);
+      document.getElementById('messages').scrollTop = 999999;
     }
 
-    // Small UX: if user closes overlay, pause iframe
-    window.addEventListener('message', (ev)=>{
-      // Reserved for future extension if Landbot supports postMessage
-    });
+    function botReply(text) {
+      addMessage(text, 'bot');
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = 'vi-VN';
+      speech.pitch = 1.2;
+      speech.rate = 1.05;
+      speech.voice = speechSynthesis.getVoices().find(v => v.name.includes('Female') || v.name.includes('Google'));
+      speechSynthesis.speak(speech);
+    }
 
-    // Keyboard shortcut: press 'L' to open/close the chat
-    document.addEventListener('keydown', (e)=>{
-      if (e.key.toLowerCase() === 'l'){
-        if (overlay.style.display === 'block') closeOverlay(); else openOverlay();
+    function sendMessage() {
+      let input = document.getElementById('textInput');
+      let text = input.value.trim();
+      if (!text) return;
+      addMessage(text, 'user');
+      input.value = '';
+      setTimeout(() => {
+        botReply('Mình đang suy nghĩ nè... Đây là câu trả lời mẫu cho: ' + text);
+      }, 600);
+    }
+
+    function startListening() {
+      const recog = new webkitSpeechRecognition();
+      recog.lang = 'vi-VN';
+      recog.onresult = function(event) {
+        const speechText = event.results[0][0].transcript;
+        addMessage(speechText, 'user');
+        botReply('Bạn vừa nói: ' + speechText);
       }
-    });
+      recog.start();
+    }
   </script>
 </body>
 </html>
